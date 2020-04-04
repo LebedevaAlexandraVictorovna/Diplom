@@ -1,8 +1,10 @@
+# -*- coding: utf-8 -*-
 #import s as server
+from socket import socket, AF_INET, SOCK_STREAM
+from threading import Thread
 
-#student_1 = server.Student()
-#student_1.set_name("Анна")
-#print(student_1.get_name())
+# student_1 = server.Student() student_1.set_name("Анна")
+# print(student_1.get_name())
 
 # функция генерации на сервере, сгенерировать один раз, потом считать с файла
 # здесь, в клиенте, можно добавить ещё одного пользователя
@@ -13,14 +15,41 @@ print("Для входа введите 1, для регистрации - 2")
 while True:
     try:
         x = int(input())
-        if int(x) == 1 or int(x) == 2:
+        if x == 1 or x == 2:
             break
         else:
             print("Введено неправильное значение. Для входа введите 1, для регистрации - 2")
     except ValueError:
         print("Введено неправильное значение. Для входа введите 1, для регистрации - 2")
 
-if x == 1: #вход
-    print("я инженер")
-else: #регистрация
-    print("коронавирус отстой")
+def communication():
+    client_socket.send(bytes(str(x).encode('utf-8') )) # send to server the behavior code
+    if x == 1: #вход
+        print("Меню:\n1 - Зачетка\n2 - Рейтинг\n3 - Выйти из приложения")
+        while True:
+            try:
+                y = int(input())
+                if y == 1 or y == 2 or y == 3:
+                    break
+                else:
+                    print("Введено неправильное значение.\n1 - Зачетка\n2 - Рейтинг\n3 - Выход")
+            except ValueError:
+                print("Введено неправильное значение.\n1 - Зачетка\n2 - Рейтинг\n3 - Выход")
+
+        client_socket.send(bytes(str(y).encode('utf-8') ))
+        msg = client_socket.recv(1024).decode("utf8")
+        print(msg)
+        if y == 3:
+            client_socket.close()
+            break
+
+    else: #регистрация
+        print("Введите вашу фамилию:")
+        surname = raw_input()
+        print(surname) #отправить на сервер later
+
+client_socket = socket(AF_INET, SOCK_STREAM)
+client_socket.connect(('localhost', 89))
+
+receive_thread = Thread(target=communication) # target function???
+receive_thread.start()
