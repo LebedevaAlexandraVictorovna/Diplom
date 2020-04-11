@@ -1,14 +1,6 @@
 # -*- coding: utf-8 -*-
-#import s as server
 from socket import socket, AF_INET, SOCK_STREAM
 from threading import Thread
-
-# student_1 = server.Student() student_1.set_name("Анна")
-# print(student_1.get_name())
-
-# функция генерации на сервере, сгенерировать один раз, потом считать с файла
-# здесь, в клиенте, можно добавить ещё одного пользователя
-# надо создать файл с рандомными значениями по категориям
 
 print("Добро пожаловать в ЛМС 2.0\nПожалуйста, войдите или зарегистрируйтесь!")
 print("Для входа введите 1, для регистрации - 2")
@@ -23,10 +15,88 @@ while True:
         print("Введено неправильное значение. Для входа введите 1, для регистрации - 2")
 
 def communication():
-    client_socket.send(bytes(str(x).encode('utf-8') )) # send to server the behavior code
+    client_socket.send(bytes(str(x).encode('utf-8'))) # send to server the behavior code
     if x == 1: #вход
-        print("Меню:\n1 - Зачетка\n2 - Рейтинг\n3 - Выйти из приложения")
+        flag = 0
+        while flag == 0:
+            print("Введите Ваш логин")
+            login = raw_input()
+            client_socket.send(bytes(login.encode('utf-8')))
+            print("Введите Ваш пароль")
+            password1 = raw_input()
+            client_socket.send(bytes(password1.encode('utf-8')))
+            flag = client_socket.recv(1024).decode("utf8")
+            if flag == 1:
+                break
+            print("Неверный логин или пароль, попробуйте ещё раз!")
+ 
+    if x == 2: # нужна регистрация
+        print("Введите вашу фамилию:")
+        surname = raw_input()
+        client_socket.send(bytes(surname.encode('utf-8')))
+        print("Введите ваше имя:")
+        name = raw_input()
+        client_socket.send(bytes(name.encode('utf-8')))
+        print("Введите ваше отчество (при отсутствии введите тире):") 
+        patronim = raw_input()
+        client_socket.send(bytes(patronim.encode('utf-8')))
+
+        print("Придумайте логин")
+        login = raw_input()
+        client_socket.send(bytes(login.encode('utf-8')))
+        
+        flag = 0
+        while flag == 0:
+            print("Придумайте пароль")
+            password1 = raw_input()
+            print("Повторите пароль")
+            password2 = raw_input()
+            if password1 == password2:
+                flag = 1
+            else:
+                print("Пароли не совпадают. Попробуйте еще раз")
+        client_socket.send(bytes(password1.encode('utf-8'))) # можно зашифровать
+
+        print("Ваш курс?")
+        while True: 
+            try:
+                course = int(input())
+                if course > 0 and course < 7: # последнее лишнее?
+                    break
+                else:
+                    print("Введено неправильное значение. Попробуйте еще раз")
+            except ValueError:
+                print("Введено неправильное значение. Попробуйте еще раз")
+        client_socket.send(bytes(str(course).encode('utf-8')))
+
+        print("Ваша группа? Введите строку, состоящую из трех букв и трех цифр")
+        while True: 
+            try:
+                group = raw_input()
+                if group[:3].isalpha() == True and group[3:].isdigit() == True: 
+                    break
+                else:
+                    print("Введите строку, состоящую из трех букв и трех цифр. Например, бив162")
+            except ValueError:
+                print("Введите строку, состоящую из трех букв и трех цифр. Например, бив162")
+        client_socket.send(bytes(group.encode('utf-8')))
+
+        print("В какой Вы подгруппе? Введите 1 или 2")
         while True:
+            try:
+                subgroup = int(input())
+                if subgroup == 1 or subgroup == 2:
+                    break
+                else:
+                    print("Введено неправильное значение. Введите 1 или 2")
+            except ValueError:
+                print("Введено неправильное значение. Введите 1 или 2")
+        client_socket.send(bytes(str(subgroup).encode('utf-8')))
+        print("Регистрация прошла успешно!")
+
+    print("Меню:\n1 - Зачетка\n2 - Рейтинг\n3 - Выйти из приложения")
+    while True:
+        while True: # ввод цифры из меню
             try:
                 y = int(input())
                 if y == 1 or y == 2 or y == 3:
@@ -36,20 +106,18 @@ def communication():
             except ValueError:
                 print("Введено неправильное значение.\n1 - Зачетка\n2 - Рейтинг\n3 - Выход")
 
-        client_socket.send(bytes(str(y).encode('utf-8') ))
-        msg = client_socket.recv(1024).decode("utf8")
-        print(msg)
-        if y == 3:
-            client_socket.close()
+        client_socket.send(bytes(str(y).encode('utf-8') )) # отправка цифры на сервер
+        try:
+            msg = client_socket.recv(1024).decode("utf8")
+            print(msg)
+            if y == 3:
+                client_socket.close()
+                break
+        except OSError:
             break
 
-    else: #регистрация
-        print("Введите вашу фамилию:")
-        surname = raw_input()
-        print(surname) #отправить на сервер later
-
 client_socket = socket(AF_INET, SOCK_STREAM)
-client_socket.connect(('localhost', 89))
+client_socket.connect(('localhost', 84))
 
 receive_thread = Thread(target=communication) # target function???
 receive_thread.start()
