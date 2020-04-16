@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+# encoding=utf8  
+#import sys  
+
+#reload(sys)  
+#sys.setdefaultencoding('utf8')
+
 from socket import socket, AF_INET, SOCK_STREAM
 from threading import Thread
 
@@ -14,43 +20,52 @@ while True:
     except ValueError:
         print("Введено неправильное значение. Для входа введите 1, для регистрации - 2")
 
+def isalpha_ru(string):
+    flag = True
+    for c in string:
+        if (c < 'А' or c > 'я'): 
+            flag = False
+    return flag
+
 def communication():
     client_socket.send(bytes(str(x).encode('utf-8'))) # send to server the behavior code
     if x == 1: #вход
-        flag = 0
-        while flag == 0:
+        flag = "0"
+        while flag == "0":
             print("Введите Ваш логин")
-            login = raw_input()
+            login = input()
             client_socket.send(bytes(login.encode('utf-8')))
             print("Введите Ваш пароль")
-            password1 = raw_input()
+            password1 = input()
             client_socket.send(bytes(password1.encode('utf-8')))
             flag = client_socket.recv(1024).decode("utf8")
-            if flag == 1:
+            if flag == "1":
+                print("Вы вошли в систему!")
                 break
-            print("Неверный логин или пароль, попробуйте ещё раз!")
+            else:
+                print("Неверный логин или пароль, попробуйте ещё раз!")
  
     if x == 2: # нужна регистрация
         print("Введите вашу фамилию:")
-        surname = raw_input()
+        surname = input()
         client_socket.send(bytes(surname.encode('utf-8')))
         print("Введите ваше имя:")
-        name = raw_input()
+        name = input()
         client_socket.send(bytes(name.encode('utf-8')))
         print("Введите ваше отчество (при отсутствии введите тире):") 
-        patronim = raw_input()
+        patronim = input()
         client_socket.send(bytes(patronim.encode('utf-8')))
 
         print("Придумайте логин")
-        login = raw_input()
+        login = input()
         client_socket.send(bytes(login.encode('utf-8')))
         
         flag = 0
         while flag == 0:
             print("Придумайте пароль")
-            password1 = raw_input()
+            password1 = input()
             print("Повторите пароль")
-            password2 = raw_input()
+            password2 = input()
             if password1 == password2:
                 flag = 1
             else:
@@ -61,19 +76,19 @@ def communication():
         while True: 
             try:
                 course = int(input())
-                if course > 0 and course < 7: # последнее лишнее?
+                if course > 0 and course < 7:
                     break
                 else:
                     print("Введено неправильное значение. Попробуйте еще раз")
-            except ValueError:
+            except (ValueError, NameError):
                 print("Введено неправильное значение. Попробуйте еще раз")
         client_socket.send(bytes(str(course).encode('utf-8')))
 
         print("Ваша группа? Введите строку, состоящую из трех букв и трех цифр")
         while True: 
             try:
-                group = raw_input()
-                if group[:3].isalpha() == True and group[3:].isdigit() == True: 
+                group = input()
+                if (group[:3].isalpha() == True or isalpha_ru(group[:3]) == True) and group[3:].isdigit() == True and len(group) == 6: 
                     break
                 else:
                     print("Введите строку, состоящую из трех букв и трех цифр. Например, бив162")
@@ -117,7 +132,7 @@ def communication():
             break
 
 client_socket = socket(AF_INET, SOCK_STREAM)
-client_socket.connect(('localhost', 84))
+client_socket.connect(('localhost', 98))
 
 receive_thread = Thread(target=communication) # target function???
 receive_thread.start()
