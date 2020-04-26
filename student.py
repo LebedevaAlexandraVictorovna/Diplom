@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 class Student():
-    id = 0
     def __init__(self):
         self.surname = "Фамилия"
         self.name = "Имя"
@@ -11,11 +10,8 @@ class Student():
         self.course = 1
         self.group = "БИВ000"
         self.subgroup = 1
-        self.id = Student.id + 1 # продумать правильно
     
     #setters
-    def set_id(self, id):
-        self.id = id
     
     def set_surname(self, sur):
         self.surname = sur
@@ -42,8 +38,6 @@ class Student():
         self.subgroup = subgroup
     
     # getters
-    def get_id(self):
-        return(self.id)
     
     def get_surname(self):
         return(self.surname)
