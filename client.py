@@ -7,14 +7,14 @@ from socket import socket, AF_INET, SOCK_STREAM
 from threading import Thread
 import random
 
-def generate_password():
+def generate_password():  
     chars = 'abcdefghijklnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
     password =''
     for i in range(8):
         password += random.choice(chars)
     return(password)
 
-def translit(string):
+def translit(string): 
     d = {
         "А": "a", "а": "a", "Б": "b", "б": "b", "В": "v", "в": "v",
         "Г": "g", "г": "g", "Д": "d", "д": "d", "Е": "e", "е": "e",
@@ -52,6 +52,30 @@ def input_course():
         except (ValueError, NameError):
             print("Введено неправильное значение. Попробуйте еще раз")
     return course
+
+def input_group():
+    while True: 
+        try:
+            group = input()
+            if (group[:3].isalpha() == True or isalpha_ru(group[:3]) == True) and group[3:].isdigit() == True and len(group) == 6: 
+                break
+            else:
+                print("Введите строку, состоящую из трех букв и трех цифр. Например, бив162")
+        except ValueError:
+            print("Введите строку, состоящую из трех букв и трех цифр. Например, бив162")
+    return group
+
+def input_subgroup():
+    while True:
+        try:
+            subgroup = int(input())
+            if subgroup == 1 or subgroup == 2:
+                break
+            else:
+                print("Введено неправильное значение. Введите 1 или 2")
+        except ValueError:
+            print("Введено неправильное значение. Введите 1 или 2")
+    return subgroup    
 
 def communication():
     print("Добро пожаловать в ЛМС 2.0\nПожалуйста, войдите в систему!")
@@ -111,26 +135,32 @@ def communication():
                         print("Введите новую фамилию студента:")        # что с логином???????????????????????
                         surname = input()
                         client_socket.send(bytes(surname.encode('utf-8')))
+                        client_socket.send(bytes(translit(surname).encode('utf-8'))) # для сменя логина на сервере
                     elif z == 2:
                         print("Введите новое имя студента:")
                         name = input()
                         client_socket.send(bytes(name.encode('utf-8')))
+                        client_socket.send(bytes(translit(name[0]).encode('utf-8')))
                     elif z == 3:
                         print("Введите новое отчество студента:")
                         patronym = input()
                         client_socket.send(bytes(patronym.encode('utf-8')))
+                        client_socket.send(bytes(translit(patronym[0]).encode('utf-8')))
                     elif z == 4:
                         print("Курс студента:")
                         course = input_course()
                         client_socket.send(bytes(str(course).encode('utf-8')))
                     elif z == 5:
-                        
-
-
-
-
-
-
+                        print("Введите новую группу студента:")
+                        group = input_group()
+                        client_socket.send(bytes(group.encode('utf-8')))
+                    elif z == 6:
+                        print("Введите новую подгруппу студента:")
+                        subgroup = input_subgroup()
+                        client_socket.send(bytes(str(subgroup).encode('utf-8')))
+                    else:  # дублирование меню для избежания путаницы
+                        print("Меню:\n1 - Внести изменения в учетную запись студента\n2 - Зарегистрировать студента\n3 - Удалить студента\n4 - Посмотреть зачетку студента\n5 - Посмотреть рейтинг\n6 - Выйти из приложения")
+                        break  
             
             if y == 2: # регистрация студента в системе
                 print("Введите фамилию студента:")
@@ -152,32 +182,15 @@ def communication():
                 client_socket.send(bytes(generate_password().encode('utf-8')))
 
                 print("Введите курс")
-                course = input_course()  ##############################################################!!!!!!!!!!!!!!!!!!!!!!!!!
+                course = input_course() 
                 client_socket.send(bytes(str(course).encode('utf-8')))
-
                 print("Группа студента? Введите строку, состоящую из трех букв и трех цифр")
-                while True: 
-                    try:
-                        group = input()
-                        if (group[:3].isalpha() == True or isalpha_ru(group[:3]) == True) and group[3:].isdigit() == True and len(group) == 6: 
-                            break
-                        else:
-                            print("Введите строку, состоящую из трех букв и трех цифр. Например, бив162")
-                    except ValueError:
-                        print("Введите строку, состоящую из трех букв и трех цифр. Например, бив162")
+                group = input_group()
                 client_socket.send(bytes(group.encode('utf-8')))
-
                 print("Введите подгруппу студента. (1 или 2)")
-                while True:
-                    try:
-                        subgroup = int(input())
-                        if subgroup == 1 or subgroup == 2:
-                            break
-                        else:
-                            print("Введено неправильное значение. Введите 1 или 2")
-                    except ValueError:
-                        print("Введено неправильное значение. Введите 1 или 2")
+                subgroup = input_subgroup()
                 client_socket.send(bytes(str(subgroup).encode('utf-8')))
+
                 print("Регистрация прошла успешно!")
             
             if y == 3:  # удаление
@@ -199,8 +212,7 @@ def communication():
                     break
             except OSError:
                 break            
-
-######################
+    
     else:  # в систему вошел студент, упрощенное меню
         print("Меню:\n1 - Зачетка\n2 - Рейтинг\n3 - Изменить пароль\n4 - Выйти из приложения")
         while True:
@@ -225,7 +237,7 @@ def communication():
                         flag = 1
                     else:
                         print("Пароли не совпадают. Попробуйте еще раз")
-                client_socket.send(bytes(password1.encode('utf-8'))) # можно зашифровать
+                client_socket.send(bytes(password1.encode('utf-8'))) 
 
             client_socket.send(bytes(str(y).encode('utf-8') )) # отправка цифры на сервер
             try:
