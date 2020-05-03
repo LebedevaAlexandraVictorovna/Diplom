@@ -5,33 +5,6 @@
 
 from socket import socket, AF_INET, SOCK_STREAM
 from threading import Thread
-import random
-
-def generate_password():  
-    chars = 'abcdefghijklnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
-    password =''
-    for i in range(8):
-        password += random.choice(chars)
-    return(password)
-
-def translit(string): 
-    d = {
-        "А": "a", "а": "a", "Б": "b", "б": "b", "В": "v", "в": "v",
-        "Г": "g", "г": "g", "Д": "d", "д": "d", "Е": "e", "е": "e",
-        "Ж": "zh", "ж": "zh", "З": "z", "з": "z", "И": "i", "и": "i",
-        "Й": "y", "й": "y", "К": "k", "к": "k", "Л": "l", "л": "l",
-        "М": "m", "м": "m", "Н": "n", "н": "n", "О": "o", "о": "o",
-        "П": "p", "п": "p", "Р": "r", "р": "r", "С": "s", "с": "s",
-        "Т": "t", "т": "t", "У": "u", "у": "u", "Ф": "f", "ф": "f",
-        "Х": "kh", "х": "kh", "Ц": "ts", "ц": "ts", "Ч": "ch", "ч": "ch",
-        "Ш": "sh", "ш": "sh", "Щ": "shch", "щ": "shch",
-        "ъ": "", "ы": "y", "ь": "i",
-        "Э": "e", "э": "e", "Ю": "yu", "ю": "yu", "Я": "ya", "я": "ya"
-    }
-    login = ""
-    for c in string:
-        login = login + d[c]
-    return login
 
 def isalpha_ru(string):
     flag = True
@@ -99,17 +72,17 @@ def communication():
     
     client_socket.send(bytes(str(p).encode('utf-8'))) # send to server the menu code
     if p == 1:  #  вход выполнил администратор
-        print("Меню:\n1 - Внести изменения в учетную запись студента\n2 - Зарегистрировать студента\n3 - Удалить студента\n4 - Посмотреть зачетку студента\n5 - Посмотреть рейтинг\n6 - Выйти из приложения")
+        print("Меню:\n1 - Внести изменения в учетную запись студента\n2 - Зарегистрировать студента\n3 - Удалить студента\n4 - Посмотреть зачетку студента\n5 - Посмотреть рейтинг\n6 - Изменить пароль\n7 - Выйти из приложения")
         while True:
             while True:  # ввод цифры из продвинутого меню
                 try:
                     y = int(input())
-                    if y == 1 or y == 2 or y == 3 or y == 4 or y == 5 or y == 6:
+                    if y == 1 or y == 2 or y == 3 or y == 4 or y == 5 or y == 6 or y == 7:
                         break
                     else:
-                        print("Введено неправильное значение.\n1 - Изменение\n2 - Регистрация\n3 - Удаление \n4 - Зачетка\n5 - Рейтинг\n6 - Выход")
+                        print("Введено неправильное значение.\n1 - Изменение\n2 - Регистрация\n3 - Удаление \n4 - Зачетка\n5 - Рейтинг\n6 - Смена пароля\n7 - Выход")
                 except ValueError:
-                    print("Введено неправильное значение.\n1 - Изменение\n2 - Регистрация\n3 - Удаление \n4 - Зачетка\n5 - Рейтинг\n6 - Выход")
+                    print("Введено неправильное значение.\n1 - Изменение\n2 - Регистрация\n3 - Удаление \n4 - Зачетка\n5 - Рейтинг\n6 - Смена пароля\n7 - Выход")
             
             client_socket.send(bytes(str(y).encode('utf-8') )) # отправка цифры на сервер
 
@@ -132,20 +105,20 @@ def communication():
                     
                     client_socket.send(bytes(str(z).encode('utf-8')))
                     if z == 1:
-                        print("Введите новую фамилию студента:")        # что с логином???????????????????????
+                        print("Введите новую фамилию студента:")
                         surname = input()
                         client_socket.send(bytes(surname.encode('utf-8')))
-                        client_socket.send(bytes(translit(surname).encode('utf-8'))) # для сменя логина на сервере
+                        #client_socket.send(bytes(translit(surname).encode('utf-8'))) # для сменя логина на сервере
                     elif z == 2:
                         print("Введите новое имя студента:")
                         name = input()
                         client_socket.send(bytes(name.encode('utf-8')))
-                        client_socket.send(bytes(translit(name[0]).encode('utf-8')))
+                        #client_socket.send(bytes(translit(name[0]).encode('utf-8')))
                     elif z == 3:
                         print("Введите новое отчество студента:")
                         patronym = input()
                         client_socket.send(bytes(patronym.encode('utf-8')))
-                        client_socket.send(bytes(translit(patronym[0]).encode('utf-8')))
+                        #client_socket.send(bytes(translit(patronym[0]).encode('utf-8')))
                     elif z == 4:
                         print("Курс студента:")
                         course = input_course()
@@ -173,14 +146,6 @@ def communication():
                 patronym = input()
                 client_socket.send(bytes(patronym.encode('utf-8')))
 
-                # генерация логина
-                login = name[0] + patronym[0] + surname
-                translit(login)
-                client_socket.send(bytes(login.encode('utf-8')))
-
-                # генерация пароля и отправка на сервер
-                client_socket.send(bytes(generate_password().encode('utf-8')))
-
                 print("Введите курс")
                 course = input_course() 
                 client_socket.send(bytes(str(course).encode('utf-8')))
@@ -204,10 +169,23 @@ def communication():
                 surname = input()
                 client_socket.send(bytes(str(surname).encode('utf-8')))
             
+            if y == 6: # смена пароля
+                flag = 0
+                    while flag == 0:
+                        print("Придумайте пароль")
+                        password1 = input()
+                        print("Повторите пароль")
+                        password2 = input()
+                        if password1 == password2:
+                            flag = 1
+                        else:
+                            print("Пароли не совпадают. Попробуйте еще раз")
+                    client_socket.send(bytes(password1.encode('utf-8')))
+            
             try:
                 msg = client_socket.recv(1024).decode("utf8")
                 print(msg)
-                if y == 6:
+                if y == 7:
                     client_socket.close()
                     break
             except OSError:
