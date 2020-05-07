@@ -27,14 +27,14 @@ def translit(string):
         "Х": "kh", "х": "kh", "Ц": "ts", "ц": "ts", "Ч": "ch", "ч": "ch",
         "Ш": "sh", "ш": "sh", "Щ": "shch", "щ": "shch",
         "ъ": "", "ы": "y", "ь": "i",
-        "Э": "e", "э": "e", "Ю": "yu", "ю": "yu", "Я": "ya", "я": "ya"
+        "Э": "e", "э": "e", "Ю": "yu", "ю": "yu", "Я": "ya", "я": "ya", "-": ""
     }
     login = ""
     for c in string:
         login = login + d[c]
     return login
 
-def show_rating():
+def show_rating(students, disciplines):
     # рейтинг будет считаться в соответствии с gpa
     rating = {}
     msg = "Фамилия Имя Отчество  Ср. балл  GPA\n-------------------------------------------------------"
@@ -58,8 +58,8 @@ def show_rating():
     for i in r_list:
         n = n + 1
         msg = msg + "\n" + str(n) + " " + rating[i] + " " + str(round(i,2))
-    client.send(bytes(msg, "utf8"))
-
+    return msg
+    
 def accept_incoming_connections():
     """Sets up handling for incoming clients."""
     while True:
@@ -77,7 +77,7 @@ def handle_client(client):  # Takes client socket as argument.
     for line in text:
         spl = line.split("*")
         if spl[3] == "admin":
-            adm = Administrator():
+            adm = Administrator()
             adm.set_surname(spl[0])
             adm.set_name(spl[1])
             adm.set_patronym(spl[2])
@@ -126,156 +126,144 @@ def handle_client(client):  # Takes client socket as argument.
     msg = client.recv(1024).decode("utf8")  # получаем код продвинутого\упрощенного меню
 
     if msg == "1": # продвинутое меню для администратора
-        msg1 = client.recv(1024).decode("utf8")
-        if msg1 == "1":  # внести изменения в учетную запись
-            while True:
+        while True:
+            msg1 = client.recv(1024).decode("utf8")
+            if msg1 == "1":  # внести изменения в учетную запись
                 surname = client.recv(1024).decode("utf8")
                 for stud in students:
                     if stud.get_surname() == surname:
                         break 
                 z = client.recv(1024).decode("utf8")
-                if z == 1: # меняем фамилию
+                if z == "1": # меняем фамилию
                     new_surname = client.recv(1024).decode("utf8")
                     stud.set_surname(new_surname)
                     new_login = translit(stud.get_name()[0] + stud.get_patronym()[0] + new_surname)
                     stud.set_login(new_login)
-                elif z == 2: # имя
+                    client.send(bytes("Фамилия изменена", "utf8"))
+                elif z == "2": # имя
                     new_name = client.recv(1024).decode("utf8")
                     stud.set_name(new_name)
                     new_login = translit(new_name[0] + stud.get_patronym()[0] + stud.get_surname())
                     stud.set_login(new_login)
-                elif z == 3:
+                    client.send(bytes("Имя изменено", "utf8"))
+                elif z == "3":
                     new_patronym = client.recv(1024).decode("utf8")
                     stud.set_patronym(new_patronym)
                     new_login = translit(stud.get_name()[0] + new_patronym[0] + stud.get_surname())
                     stud.set_login(new_login)
-                elif z == 4: # курс
+                    client.send(bytes("Отчество изменено", "utf8"))
+                elif z == "4": # курс
                     new_course = client.recv(1024).decode("utf8")
                     stud.set_course(int(new_course))
-                elif z == 5:
+                    client.send(bytes("Курс изменен", "utf8"))
+                elif z == "5":
                     new_group = client.recv(1024).decode("utf8")
                     stud.set_group(new_group)
-                elif z == 6:
+                    client.send(bytes("Группа изменена", "utf8"))                    
+                else:
                     new_subgroup = client.recv(1024).decode("utf8")
                     stud.set_subgroup(int(new_subgroup))
-                else:
-                    break
-        
-        elif msg1 == 2:
-            stud = Student()
-            print("Signing in") # регистрация
-            surname = client.recv(1024).decode("utf8")
-            stud.set_surname(surname)
-            name = client.recv(1024).decode("utf8")
-            stud.set_name(name)
-            patronym = client.recv(1024).decode("utf8")
-            stud.set_patronym(patronym)
+                    client.send(bytes("Подгруппа изменена", "utf8"))
+                            
+            elif msg1 == "2":
+                stud = Student()
+                print("Signing in") # регистрация
+                surname = client.recv(1024).decode("utf8")
+                stud.set_surname(surname)
+                name = client.recv(1024).decode("utf8")
+                stud.set_name(name)
+                patronym = client.recv(1024).decode("utf8")
+                stud.set_patronym(patronym)
 
-            # генерация логина
-            login = name[0] + patronym[0] + surname
-            stud.set_login(translit(login))
+                # генерация логина
+                login = translit(name[0] + patronym[0] + surname)
+                stud.set_login(login)
 
-            # генерация пароля
-            stud.set_password(generate_password())
+                # генерация пароля
+                stud.set_password(generate_password())
+                
+                course = client.recv(1024).decode("utf8")
+                stud.set_course(int(course))
+                group = client.recv(1024).decode("utf8")
+                stud.set_group(group)
+                subgroup = client.recv(1024).decode("utf8")
+                stud.set_subgroup(int(subgroup))
+                students.append(stud)
+                f = open("list.txt", "a") # открытие файла на дозапись
+                f.write("\n"+surname+"*"+name+"*"+patronym+"*"+login+"*"+password+"*"+course+"*"+group+"*"+subgroup)
+                f.close()
             
-            course = client.recv(1024).decode("utf8")
-            stud.set_course(int(course))
-            group = client.recv(1024).decode("utf8")
-            stud.set_group(group)
-            subgroup = client.recv(1024).decode("utf8")
-            stud.set_subgroup(int(subgroup))
-            students.append(stud)
-            f = open("list.txt", "a") # открытие файла на дозапись
-            f.write("\n"+surname+"*"+name+"*"+patronym+"*"+login+"*"+password+"*"+course+"*"+group+"*"+subgroup)
-            f.close()
-        
-        elif msg1 == 3: # удаление
-            surname = client.recv(1024).decode("utf8")
-            for stud in students:
-                if stud.get_surname() == surname:
-                    students.remove(stud)
-                    break
-            with open("list.txt") as f:
-                lines = f.readlines()
-            for line in lines:
-                if surname in line:
-                    lines.remove(line)
-                    break
-            with open("list.txt") as f:
-                f.writelines(lines)
-        
-        elif msg1 == 4:  # зачетка
-            surname = client.recv(1024).decode("utf8")
-            for stud in students:
-                if stud.get_surname() == surname:
-                    break
-            msg = str(stud.get_surname()) + " " + str(stud.get_name()) + " " + str(stud.get_patronym()) + \
-                "\n" + "Студент бакалавриата " + str(stud.get_course()) + " курс" + "\n" + "-------------------------------------------------"
-            client.send(bytes(msg, "utf8"))
-        
-        elif msg1 == 5:  # рейтинг
-            show_rating()
-        
-        elif msg1 == 6:  # смена пароля
-            password = client.recv(1024).decode("utf8")
-            for adm in admins:
-                if adm.get_surname() = user:
-                    adm.set_password(password)
-                    # в файл!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        
-        else: # закрываем соединение
-            client.send(bytes("До свидания!", "utf8"))
-            client.close()
-            break
+            elif msg1 == "3": # удаление
+                surname = client.recv(1024).decode("utf8")
+                for stud in students:
+                    if stud.get_surname() == surname:
+                        students.remove(stud)
+                        break
+                with open("list.txt") as f:
+                    lines = f.readlines()
+                for line in lines:
+                    if surname in line:
+                        lines.remove(line)
+                        break
+                with open("list.txt") as f:
+                    f.writelines(lines)
+            
+            elif msg1 == "4":  # зачетка
+                surname = client.recv(1024).decode("utf8")
+                for stud in students:
+                    if stud.get_surname() == surname:
+                        break
+                msg = str(stud.get_surname()) + " " + str(stud.get_name()) + " " + str(stud.get_patronym()) + \
+                    "\n" + "Студент бакалавриата " + str(stud.get_course()) + " курс" + "\n" + "-------------------------------------------------"
+                for obj in disciplines:
+                    msg = msg + "\n" + str(obj.get_name()) + " " + str(obj.find_mark(str(stud.get_surname())))
+                client.send(bytes(msg, "utf8"))
+            
+            elif msg1 == "5":  # рейтинг
+                msg = show_rating(students, disciplines)
+                client.send(bytes(msg, "utf8"))
+            
+            elif msg1 == "6":  # смена пароля
+                password = client.recv(1024).decode("utf8")
+                for adm in admins:
+                    if adm.get_surname() == user:
+                        adm.set_password(password)
+                        # в файл!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                        # удалить строку, потом дозаписать
+                client.send(bytes("Пароль изменен", "utf8"))
+            
+            else: # закрываем соединение
+                client.send(bytes("До свидания!", "utf8"))
+                client.close()
+                break
 
-
-
-                    
-
-
-    else:
-        stud = Student()
-        print("Signing in") # регистрация
-        surname = client.recv(1024).decode("utf8")
-        stud.set_surname(surname)
-        name = client.recv(1024).decode("utf8")
-        stud.set_name(name)
-        patronym = client.recv(1024).decode("utf8")
-        stud.set_patronym(patronym)
-        login = client.recv(1024).decode("utf8")
-        stud.set_login(login)
-        password = client.recv(1024).decode("utf8")
-        stud.set_password(password)
-        course = client.recv(1024).decode("utf8")
-        stud.set_course(int(course))
-        group = client.recv(1024).decode("utf8")
-        stud.set_group(group)
-        subgroup = client.recv(1024).decode("utf8")
-        stud.set_subgroup(int(subgroup))
-        students.append(stud)
-        f = open("list.txt", "a") # открытие файла на дозапись
-        f.write("\n"+surname+"*"+name+"*"+patronym+"*"+login+"*"+password+"*"+course+"*"+group+"*"+subgroup)
-        f.close()
-    
-    while True:
-        msg = client.recv(1024).decode("utf8") # меню
-        print(msg)
-        if msg == "1":  # зачетка
-            msg = str(stud.get_surname()) + " " + str(stud.get_name()) + " " + str(stud.get_patronym()) + \
-                "\n" + "Студент бакалавриата " + str(stud.get_course()) + " курс" + "\n" + "-------------------------------------------------"
-            for obj in disciplines:
-                msg = msg + "\n" + str(obj.get_name()) + " " + str(obj.find_mark(str(stud.get_surname())))
-            client.send(bytes(msg, "utf8"))
-        elif msg == "2":  # рейтинг
-            show_rating()
-        else:
-            client.send(bytes("До свидания!", "utf8"))
-            client.close()
-            break
+    else:    
+        while True:
+            msg = client.recv(1024).decode("utf8") # меню
+            if msg == "1":  # зачетка
+                msg = str(stud.get_surname()) + " " + str(stud.get_name()) + " " + str(stud.get_patronym()) + \
+                    "\n" + "Студент бакалавриата " + str(stud.get_course()) + " курс" + "\n" + "-------------------------------------------------"
+                for obj in disciplines:
+                    msg = msg + "\n" + str(obj.get_name()) + " " + str(obj.find_mark(str(stud.get_surname())))
+                client.send(bytes(msg, "utf8"))
+            elif msg == "2":  # рейтинг
+                msg = show_rating(students, disciplines)
+                client.send(bytes(msg, "utf8"))
+            elif msg == "3":
+                password = client.recv(1024).decode("utf8")
+                for stud in students:
+                    if stud.get_surname() == user:
+                        stud.set_password(password)
+                        # file
+                client.send(bytes("Пароль изменен", "utf8"))
+            else:
+                client.send(bytes("До свидания!", "utf8"))
+                client.close()
+                break
  
 
 SERVER = socket(AF_INET, SOCK_STREAM)
-SERVER.bind(('localhost', 81))
+SERVER.bind(('localhost', 106))
  
 if __name__ == "__main__":
     SERVER.listen(5)
