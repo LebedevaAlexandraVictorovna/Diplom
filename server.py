@@ -15,6 +15,16 @@ def generate_password():
         password += random.choice(chars)
     return(password)
 
+def update_file(students, admins):
+    f = open("list.txt", "w")
+    for stud in students:
+        f.write(stud.get_surname() +"*"+stud.get_name()+"*"+stud.get_patronym()+\
+            "*"+stud.get_login() +"*"+stud.get_password() +"*"+str(stud.get_course()) +"*"+stud.get_group()+"*"+str(stud.get_subgroup()) + "\n")
+    for adm in admins:
+        f.write(adm.get_surname()+"*"+adm.get_name() +"*"+adm.get_patronym() +\
+        "*"+adm.get_login()+"*"+adm.get_password()+"\n")
+    f.close()
+
 def translit(string): 
     d = {
         "А": "a", "а": "a", "Б": "b", "б": "b", "В": "v", "в": "v",
@@ -139,19 +149,36 @@ def handle_client(client):  # Takes client socket as argument.
                     stud.set_surname(new_surname)
                     new_login = translit(stud.get_name()[0] + stud.get_patronym()[0] + new_surname)
                     stud.set_login(new_login)
-                    client.send(bytes("Фамилия изменена", "utf8"))
+                    client.send(bytes("Фамилия и логин изменены", "utf8"))
+                    # меняем старую фамилию в ведомостях
+                    for subj in disciplines:
+                        m = subj.find_mark(surname)
+                        f = open(subj.get_vedomost())
+                        text = f.read().splitlines()
+                        new_lines = []
+                        for line in text:
+                            if surname in line:
+                                new_lines.append(new_surname + " " + m)
+                            else:
+                                new_lines.append(line)
+                        f.close()
+                        f = open(subj.get_vedomost(), "w")
+                        for line in new_lines:
+                            f.write("%s\n" % line)
+                        f.close()
+
                 elif z == "2": # имя
                     new_name = client.recv(1024).decode("utf8")
                     stud.set_name(new_name)
                     new_login = translit(new_name[0] + stud.get_patronym()[0] + stud.get_surname())
                     stud.set_login(new_login)
-                    client.send(bytes("Имя изменено", "utf8"))
+                    client.send(bytes("Имя и логин изменены", "utf8"))
                 elif z == "3":
                     new_patronym = client.recv(1024).decode("utf8")
                     stud.set_patronym(new_patronym)
                     new_login = translit(stud.get_name()[0] + new_patronym[0] + stud.get_surname())
                     stud.set_login(new_login)
-                    client.send(bytes("Отчество изменено", "utf8"))
+                    client.send(bytes("Отчество и логин изменены", "utf8"))
                 elif z == "4": # курс
                     new_course = client.recv(1024).decode("utf8")
                     stud.set_course(int(new_course))
@@ -164,7 +191,9 @@ def handle_client(client):  # Takes client socket as argument.
                     new_subgroup = client.recv(1024).decode("utf8")
                     stud.set_subgroup(int(new_subgroup))
                     client.send(bytes("Подгруппа изменена", "utf8"))
-                            
+                # перезапись файла list.txt
+                update_file(students, admins)
+                                            
             elif msg1 == "2":
                 stud = Student()
                 print("Signing in") # регистрация
@@ -180,7 +209,8 @@ def handle_client(client):  # Takes client socket as argument.
                 stud.set_login(login)
 
                 # генерация пароля
-                stud.set_password(generate_password())
+                password = generate_password()
+                stud.set_password(password)
                 
                 course = client.recv(1024).decode("utf8")
                 stud.set_course(int(course))
@@ -190,23 +220,17 @@ def handle_client(client):  # Takes client socket as argument.
                 stud.set_subgroup(int(subgroup))
                 students.append(stud)
                 f = open("list.txt", "a") # открытие файла на дозапись
-                f.write("\n"+surname+"*"+name+"*"+patronym+"*"+login+"*"+password+"*"+course+"*"+group+"*"+subgroup)
+                f.write(surname+"*"+name+"*"+patronym+"*"+login+"*"+password+"*"+course+"*"+group+"*"+subgroup+"\n")
                 f.close()
+                client.send(bytes("Регистрация прошла успешно", "utf8"))
             
             elif msg1 == "3": # удаление
                 surname = client.recv(1024).decode("utf8")
                 for stud in students:
                     if stud.get_surname() == surname:
                         students.remove(stud)
-                        break
-                with open("list.txt") as f:
-                    lines = f.readlines()
-                for line in lines:
-                    if surname in line:
-                        lines.remove(line)
-                        break
-                with open("list.txt") as f:
-                    f.writelines(lines)
+                update_file(students, admins)
+                client.send(bytes("Студент отчислен!", "utf8"))
             
             elif msg1 == "4":  # зачетка
                 surname = client.recv(1024).decode("utf8")
@@ -228,8 +252,7 @@ def handle_client(client):  # Takes client socket as argument.
                 for adm in admins:
                     if adm.get_surname() == user:
                         adm.set_password(password)
-                        # в файл!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                        # удалить строку, потом дозаписать
+                update_file(students, admins)
                 client.send(bytes("Пароль изменен", "utf8"))
             
             else: # закрываем соединение
@@ -254,7 +277,7 @@ def handle_client(client):  # Takes client socket as argument.
                 for stud in students:
                     if stud.get_surname() == user:
                         stud.set_password(password)
-                        # file
+                update_file(students, admins)
                 client.send(bytes("Пароль изменен", "utf8"))
             else:
                 client.send(bytes("До свидания!", "utf8"))
@@ -263,7 +286,7 @@ def handle_client(client):  # Takes client socket as argument.
  
 
 SERVER = socket(AF_INET, SOCK_STREAM)
-SERVER.bind(('localhost', 106))
+SERVER.bind(('localhost', 85))
  
 if __name__ == "__main__":
     SERVER.listen(5)
