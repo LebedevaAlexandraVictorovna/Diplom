@@ -149,14 +149,11 @@ def communication():
                 print("Введите подгруппу студента. (1 или 2)")
                 subgroup = input_subgroup()
                 client_socket.send(bytes(str(subgroup).encode('utf-8')))
-
-                print("Регистрация прошла успешно!")
             
             if y == 3:  # удаление
                 print("Введите фамилию студента, которого надо отчислить")
                 surname = input()
                 client_socket.send(bytes(str(surname).encode('utf-8')))
-                print("Готово!")
 
             if y == 4: # зачетка
                 print("Введите фамилию студента для поиска его зачетки")
@@ -198,6 +195,7 @@ def communication():
                 except ValueError:
                     print("Введено неправильное значение.\n1 - Зачетка\n2 - Рейтинг\n3 - Смена пароля\n4 - Выход")
             
+            client_socket.send(bytes(str(y).encode('utf-8') )) # отправка цифры на сервер
             if y == 3:
                 flag = 0
                 while flag == 0:
@@ -211,7 +209,6 @@ def communication():
                         print("Пароли не совпадают. Попробуйте еще раз")
                 client_socket.send(bytes(password1.encode('utf-8'))) 
 
-            client_socket.send(bytes(str(y).encode('utf-8') )) # отправка цифры на сервер
             try:
                 msg = client_socket.recv(1024).decode("utf8")
                 print(msg)
@@ -222,7 +219,7 @@ def communication():
                 break
 
 client_socket = socket(AF_INET, SOCK_STREAM)
-client_socket.connect(('localhost', 106))
+client_socket.connect(('localhost', 85))
 
 receive_thread = Thread(target=communication)
 receive_thread.start()
