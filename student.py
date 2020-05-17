@@ -19,7 +19,7 @@ class Student():
     def set_name(self, name):
         self.name = name
     
-    def set_patronim(self, pat):
+    def set_patronym(self, pat):
         self.patronim = pat
     
     def set_login(self, login):
@@ -42,7 +42,7 @@ class Student():
     def get_surname(self):
         return(self.surname)
     
-    def get_patronim(self):
+    def get_patronym(self):
         return(self.patronim)
 
     def get_name(self):
