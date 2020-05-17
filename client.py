@@ -79,9 +79,9 @@ def communication():
                     if y == 1 or y == 2 or y == 3 or y == 4 or y == 5 or y == 6 or y == 7:
                         break
                     else:
-                        print("Введено неправильное значение.\n1 - Изменение\n2 - Регистрация\n3 - Удаление \n4 - Зачетка\n5 - Рейтинг\n6 - Смена пароля")
+                        print("Введено неправильное значение.\n1 - Изменение\n2 - Регистрация\n3 - Удаление \n4 - Зачетка\n5 - Рейтинг\n6 - Смена пароля\n7 - Выход")
                 except ValueError:
-                    print("Введено неправильное значение.\n1 - Изменение\n2 - Регистрация\n3 - Удаление \n4 - Зачетка\n5 - Рейтинг\n6 - Смена пароля")
+                    print("Введено неправильное значение.\n1 - Изменение\n2 - Регистрация\n3 - Удаление \n4 - Зачетка\n5 - Рейтинг\n6 - Смена пароля\n7 - Выход")
             
             client_socket.send(bytes(str(y).encode('utf-8') )) # отправка цифры на сервер
 
@@ -89,47 +89,49 @@ def communication():
                 print("Введите фамилию студента для идентификации его учетной записи")
                 surname = input()
                 client_socket.send(bytes(surname.encode('utf-8')))
-                print("Выберите, что нужно изменить\n1 - Фамилия, 2 - Имя, 3 - Отчество, 4 - Курс, 5 - Группа, 6 - Подгруппа")
-                # корректный ввод цифры
-                while True:
-                    try:
-                        z = int(input())
-                        if z == 1 or z == 2 or z == 3 or z == 4 or z == 5 or z == 6:
-                            break
-                        else:
+                flag = client_socket.recv(1024).decode("utf8")
+                if flag == "1":
+                    print("Выберите, что нужно изменить\n1 - Фамилия, 2 - Имя, 3 - Отчество, 4 - Курс, 5 - Группа, 6 - Подгруппа")
+                    # корректный ввод цифры
+                    while True:
+                        try:
+                            z = int(input())
+                            if z == 1 or z == 2 or z == 3 or z == 4 or z == 5 or z == 6:
+                                break
+                            else:
+                                print("Введено неправильное значение. Попробуйте еще раз.")
+                        except ValueError:
                             print("Введено неправильное значение. Попробуйте еще раз.")
-                    except ValueError:
-                        print("Введено неправильное значение. Попробуйте еще раз.")
-                
-                client_socket.send(bytes(str(z).encode('utf-8')))
-                if z == 1:
-                    print("Введите новую фамилию студента:")
-                    surname = input()
-                    client_socket.send(bytes(surname.encode('utf-8')))
-                    #client_socket.send(bytes(translit(surname).encode('utf-8'))) # для сменя логина на сервере
-                elif z == 2:
-                    print("Введите новое имя студента:")
-                    name = input()
-                    client_socket.send(bytes(name.encode('utf-8')))
-                    #client_socket.send(bytes(translit(name[0]).encode('utf-8')))
-                elif z == 3:
-                    print("Введите новое отчество студента:")
-                    patronym = input()
-                    client_socket.send(bytes(patronym.encode('utf-8')))
-                    #client_socket.send(bytes(translit(patronym[0]).encode('utf-8')))
-                elif z == 4:
-                    print("Курс студента:")
-                    course = input_course()
-                    client_socket.send(bytes(str(course).encode('utf-8')))
-                elif z == 5:
-                    print("Введите новую группу студента:")
-                    group = input_group()
-                    client_socket.send(bytes(group.encode('utf-8')))
-                else:  
-                    print("Введите новую подгруппу студента:")
-                    subgroup = input_subgroup()
-                    client_socket.send(bytes(str(subgroup).encode('utf-8')))
                     
+                    client_socket.send(bytes(str(z).encode('utf-8')))
+                    if z == 1:
+                        print("Введите новую фамилию студента:")
+                        surname = input()
+                        client_socket.send(bytes(surname.encode('utf-8')))
+                        #client_socket.send(bytes(translit(surname).encode('utf-8'))) # для сменя логина на сервере
+                    elif z == 2:
+                        print("Введите новое имя студента:")
+                        name = input()
+                        client_socket.send(bytes(name.encode('utf-8')))
+                        #client_socket.send(bytes(translit(name[0]).encode('utf-8')))
+                    elif z == 3:
+                        print("Введите новое отчество студента:")
+                        patronym = input()
+                        client_socket.send(bytes(patronym.encode('utf-8')))
+                        #client_socket.send(bytes(translit(patronym[0]).encode('utf-8')))
+                    elif z == 4:
+                        print("Курс студента:")
+                        course = input_course()
+                        client_socket.send(bytes(str(course).encode('utf-8')))
+                    elif z == 5:
+                        print("Введите новую группу студента:")
+                        group = input_group()
+                        client_socket.send(bytes(group.encode('utf-8')))
+                    else:  
+                        print("Введите новую подгруппу студента:")
+                        subgroup = input_subgroup()
+                        client_socket.send(bytes(str(subgroup).encode('utf-8')))
+                        
             if y == 2: # регистрация студента в системе
                 print("Введите фамилию студента:")
                 surname = input()
@@ -219,7 +221,7 @@ def communication():
                 break
 
 client_socket = socket(AF_INET, SOCK_STREAM)
-client_socket.connect(('localhost', 85))
+client_socket.connect(('localhost', 98))
 
 receive_thread = Thread(target=communication)
 receive_thread.start()
