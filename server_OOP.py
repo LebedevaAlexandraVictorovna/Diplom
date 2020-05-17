@@ -14,14 +14,14 @@ def accept_incoming_connections():
 
 def handle_client(client):  # Takes client socket as argument.
     """Handles a single client connection."""
-    
+
     f = open("list.txt")  # файл со списком учеников
     students = []  # список объектов 
     text = f.read().splitlines()
     for line in text:
         spl = line.split("*")
-        stud = Student(spl[0],spl[1],spl[2],spl[3],spl[4],spl[5],spl[6],spl[7])
-        students.append(stud)  
+        stud = StudentOOP(spl[0],spl[1],spl[2],spl[3],spl[4],spl[5],spl[6],spl[7])
+        students.append(stud)
     f.close()
 
     g = open("disciplines.txt")  # файл со списком дисциплин
@@ -63,7 +63,7 @@ def handle_client(client):  # Takes client socket as argument.
         f = open("list.txt", "a") # открытие файла на дозапись
         f.write("\n"+surname+"*"+name+"*"+patronym+"*"+login+"*"+password+"*"+course+"*"+group+"*"+subgroup)
         f.close()
-    
+
     while True:
         msg = client.recv(1024).decode("utf8") # меню
         print(msg)
@@ -101,11 +101,11 @@ def handle_client(client):  # Takes client socket as argument.
             client.send(bytes("До свидания!", "utf8"))
             client.close()
             break
- 
+
 
 SERVER = socket(AF_INET, SOCK_STREAM)
 SERVER.bind(('localhost', 84))
- 
+
 if __name__ == "__main__":
     SERVER.listen(5)
     print("Waiting for connection...")
