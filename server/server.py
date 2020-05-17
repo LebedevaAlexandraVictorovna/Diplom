@@ -4,9 +4,9 @@ from socket import socket, AF_INET, SOCK_STREAM
 from threading import Thread
 import random
 
-from student import Student
-from discipline import Discipline
-from administrator import Administrator
+from server.student import Student
+from server.discipline import Discipline
+from server.administrator import Administrator
 
 
 def generate_password():
@@ -18,13 +18,13 @@ def generate_password():
 
 
 def update_file(students, admins):
-    f = open("list.txt", "w", encoding="utf8")
+    f = open("data/list.txt", "w", encoding="utf8")
     for stud in students:
-        f.write(stud.get_surname() + "*" + stud.get_name() + "*" + stud.get_patronym() + \
+        f.write(stud.get_surname() + "*" + stud.get_name() + "*" + stud.get_patronym() +
                 "*" + stud.get_login() + "*" + stud.get_password() + "*" + str(
             stud.get_course()) + "*" + stud.get_group() + "*" + str(stud.get_subgroup()) + "\n")
     for adm in admins:
-        f.write(adm.get_surname() + "*" + adm.get_name() + "*" + adm.get_patronym() + \
+        f.write(adm.get_surname() + "*" + adm.get_name() + "*" + adm.get_patronym() +
                 "*" + adm.get_login() + "*" + adm.get_password() + "\n")
     f.close()
 
@@ -88,7 +88,7 @@ def accept_incoming_connections():
 def handle_client(client):  # Takes client socket as argument.
     """Handles a single client connection."""
 
-    f = open("list.txt", encoding="utf8")  # файл со списком учеников и администраторов
+    f = open("data/list.txt", encoding="utf8")  # файл со списком учеников и администраторов
     students = []  # список студентов
     admins = []  # список админов
     text = f.read().splitlines()
@@ -114,7 +114,7 @@ def handle_client(client):  # Takes client socket as argument.
             students.append(stud)
     f.close()
 
-    g = open("disciplines.txt", encoding="utf8")  # файл со списком дисциплин
+    g = open("data/disciplines.txt", encoding="utf8")  # файл со списком дисциплин
     disciplines = []
     text = g.read().splitlines()
     for line in text:
@@ -236,7 +236,7 @@ def handle_client(client):  # Takes client socket as argument.
                 print(1111111111111111111)
                 students.append(stud)
                 print(222222222222222222)
-                f = open("list.txt", "a", encoding="utf8")  # открытие файла на дозапись
+                f = open("data/list.txt", "a", encoding="utf8")  # открытие файла на дозапись
                 f.write(
                     surname + "*" + name + "*" + patronym + "*" + login + "*" + password + "*" + course + "*" + group + "*" + subgroup + "\n")
                 f.close()

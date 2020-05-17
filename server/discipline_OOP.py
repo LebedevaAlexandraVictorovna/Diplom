@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-class Discipline():  # можно и препода добавить
+
+class Discipline:  # можно и препода добавить
     def __init__(self, name, course, cr, file):
         self.name = name
         self.course = course

@@ -2,8 +2,8 @@
 
 from socket import socket, AF_INET, SOCK_STREAM
 from threading import Thread
-from student import Student
-from discipline import Discipline
+from server.student import Student
+from server.discipline import Discipline
 
 def accept_incoming_connections():
     """Sets up handling for incoming clients."""
@@ -15,7 +15,7 @@ def accept_incoming_connections():
 def handle_client(client):  # Takes client socket as argument.
     """Handles a single client connection."""
 
-    f = open("list.txt")  # файл со списком учеников
+    f = open("data/list.txt")  # файл со списком учеников
     students = []  # список объектов 
     text = f.read().splitlines()
     for line in text:
@@ -24,7 +24,7 @@ def handle_client(client):  # Takes client socket as argument.
         students.append(stud)
     f.close()
 
-    g = open("disciplines.txt")  # файл со списком дисциплин
+    g = open("data/disciplines.txt")  # файл со списком дисциплин
     disciplines = []
     text = g.read().splitlines()
     for line in text:
@@ -60,7 +60,7 @@ def handle_client(client):  # Takes client socket as argument.
         subgroup = client.recv(1024).decode("utf8")
         stud = Student(surname,name,patronym,login,password,course,group,subgroup)
         students.append(stud)
-        f = open("list.txt", "a") # открытие файла на дозапись
+        f = open("data/list.txt", "a") # открытие файла на дозапись
         f.write("\n"+surname+"*"+name+"*"+patronym+"*"+login+"*"+password+"*"+course+"*"+group+"*"+subgroup)
         f.close()
 

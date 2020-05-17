@@ -3,7 +3,7 @@ class Administrator():   # наследование с student?
         self.surname = "Фамилия"
         self.name = "Имя"
         self.patronym = "Отчество"
-        self.login = "admin" # логин всегда admin, setter не нужен
+        self.login = "admin"  # логин всегда admin, setter не нужен
         self.__password = ""
     
     # setters
