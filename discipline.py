@@ -38,6 +38,7 @@ class Discipline:  # можно и препода добавить
     def find_mark(self, student):
         f = open(self.get_vedomost(), encoding="utf8")
         text = f.read().splitlines()
+        mark = "0"
         for line in text:
             if student in line:
                 mark = line[-2:]
