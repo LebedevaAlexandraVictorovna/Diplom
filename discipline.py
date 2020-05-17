@@ -6,6 +6,7 @@ class Discipline():  # можно и препода добавить
         self.course = 0  # на каком курсе проходят дисциплину
         self.credits = 5
         self.__vedomost = ""  # файл с оценками
+        
     # setters
     def set_name(self, name):
         self.name = name
@@ -36,6 +37,7 @@ class Discipline():  # можно и препода добавить
     def find_mark(self, student):
         f = open(self.get_vedomost())
         text = f.read().splitlines()
+        mark = "0"
         for line in text:
             if student in line:
                 mark = line[-2:]
