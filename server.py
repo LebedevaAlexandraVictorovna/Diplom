@@ -18,7 +18,7 @@ def generate_password():
 
 
 def update_file(students, admins):
-    f = open("list.txt", "w")
+    f = open("list.txt", "w", encoding="utf8")
     for stud in students:
         f.write(stud.get_surname() + "*" + stud.get_name() + "*" + stud.get_patronym() + \
                 "*" + stud.get_login() + "*" + stud.get_password() + "*" + str(
@@ -114,7 +114,7 @@ def handle_client(client):  # Takes client socket as argument.
             students.append(stud)
     f.close()
 
-    g = open("disciplines.txt")  # файл со списком дисциплин
+    g = open("disciplines.txt", encoding="utf8")  # файл со списком дисциплин
     disciplines = []
     text = g.read().splitlines()
     for line in text:
@@ -165,7 +165,7 @@ def handle_client(client):  # Takes client socket as argument.
                         # меняем старую фамилию в ведомостях
                         for subj in disciplines:
                             m = subj.find_mark(surname)
-                            f = open(subj.get_vedomost())
+                            f = open(subj.get_vedomost(), encoding="utf8")
                             text = f.read().splitlines()
                             new_lines = []
                             for line in text:
@@ -174,7 +174,7 @@ def handle_client(client):  # Takes client socket as argument.
                                 else:
                                     new_lines.append(line)
                             f.close()
-                            f = open(subj.get_vedomost(), "w")
+                            f = open(subj.get_vedomost(), "w", encoding="utf8")
                             for line in new_lines:
                                 f.write("%s\n" % line)
                             f.close()
@@ -236,7 +236,7 @@ def handle_client(client):  # Takes client socket as argument.
                 print(1111111111111111111)
                 students.append(stud)
                 print(222222222222222222)
-                f = open("list.txt", "a")  # открытие файла на дозапись
+                f = open("list.txt", "a", encoding="utf8")  # открытие файла на дозапись
                 f.write(
                     surname + "*" + name + "*" + patronym + "*" + login + "*" + password + "*" + course + "*" + group + "*" + subgroup + "\n")
                 f.close()
