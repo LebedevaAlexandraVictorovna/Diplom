@@ -43,7 +43,7 @@ class Student:
     def get_surname(self):
         return self.surname
 
-    def get_patronim(self):
+    def get_patronym(self):
         return self.patronym
 
     def get_name(self):
