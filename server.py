@@ -14,7 +14,7 @@ def generate_password():
     password = ''
     for i in range(8):
         password += random.choice(chars)
-    return (password)
+    return password
 
 
 def update_file(students, admins):
@@ -80,8 +80,8 @@ def show_rating(students, disciplines):
 def accept_incoming_connections():
     """Sets up handling for incoming clients."""
     while True:
-        client, client_address = SERVER.accept()
-        print("%s: has connected." % client_address)  # "{}:{} qwerty".format(a,b)
+        client, (ip, port) = SERVER.accept()
+        print("%s:%s has connected." % (ip, port))  # "{}:{} qwerty".format(a,b)
         Thread(target=handle_client, args=(client,)).start()
 
 
@@ -315,7 +315,7 @@ def handle_client(client):  # Takes client socket as argument.
 
 
 SERVER = socket(AF_INET, SOCK_STREAM)
-SERVER.bind(('localhost', 98))
+SERVER.bind(('127.0.0.1', 8081))
 
 if __name__ == "__main__":
     SERVER.listen(5)
