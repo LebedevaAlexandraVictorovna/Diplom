@@ -212,7 +212,18 @@ def communication():
             try:
                 msg = client_socket.recv(1024).decode("utf8")
                 print(msg)
-                if y == 7:
+                if y != 7:
+                    print("---------------------------------------\n"
+                        "Меню:\n"
+                        "1 - Внести изменения в учетную запись студента\n"
+                        "2 - Зарегистрировать студента\n"
+                        "3 - Удалить студента\n"
+                        "4 - Посмотреть зачетку студента\n"
+                        "5 - Посмотреть рейтинг\n"
+                        "6 - Изменить пароль\n"
+                        "7 - Выйти из приложения\n"
+                        "---------------------------------------")
+                else:
                     client_socket.close()
                     break
             except OSError:
@@ -260,7 +271,15 @@ def communication():
             try:
                 msg = client_socket.recv(1024).decode("utf8")
                 print(msg)
-                if y == 4:
+                if y != 4:
+                    print("----------------\n"
+                            "Меню:\n"
+                            "1 - Зачетка\n"
+                            "2 - Рейтинг\n"
+                            "3 - Изменить пароль\n"
+                            "4 - Выйти из приложения\n"
+                            "----------------")
+                else:
                     client_socket.close()
                     break
             except OSError:
@@ -268,7 +287,7 @@ def communication():
 
 
 client_socket = socket(AF_INET, SOCK_STREAM)
-client_socket.connect(('127.0.0.1', 8081))
+client_socket.connect(('127.0.0.1', 8093))
 
 receive_thread = Thread(target=communication)
 receive_thread.start()

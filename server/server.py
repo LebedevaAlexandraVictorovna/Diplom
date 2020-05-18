@@ -4,10 +4,14 @@ from socket import socket, AF_INET, SOCK_STREAM
 from threading import Thread
 import random
 
-from server.student import Student
-from server.discipline import Discipline
-from server.administrator import Administrator
+from student import Student
+from discipline import Discipline
+from administrator import Administrator
 
+import os
+
+cwd = os.getcwd()  # Get the current working directory (cwd)
+files = os.listdir(cwd) 
 
 def generate_password():
     chars = 'abcdefghijklnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
@@ -18,7 +22,7 @@ def generate_password():
 
 
 def update_file(students, admins):
-    f = open("data/list.txt", "w", encoding="utf8")
+    f = open("server/data/list.txt", "w", encoding="utf8")
     for stud in students:
         f.write(stud.get_surname() + "*" + stud.get_name() + "*" + stud.get_patronym() +
                 "*" + stud.get_login() + "*" + stud.get_password() + "*" + str(
@@ -59,10 +63,11 @@ def show_rating(students, disciplines):
         avg = 0  # средний балл
         gpa = 0
         for obj in disciplines:
-            n = n + 1
-            avg = avg + int(obj.find_mark(str(st.get_surname())))
-            cr = cr + int(obj.get_credits())
-            gpa = gpa + int(obj.get_credits()) * int(obj.find_mark(str(st.get_surname())))
+            if int(obj.get_course()) <= int(st.get_course()):
+                n = n + 1
+                avg = avg + int(obj.find_mark(str(st.get_surname())))
+                cr = cr + int(obj.get_credits())
+                gpa = gpa + int(obj.get_credits()) * int(obj.find_mark(str(st.get_surname())))
         avg = avg / n
         gpa = gpa / cr
         rating[gpa] = str(st.get_surname()) + " " + str(st.get_name()) + " " + str(st.get_patronym()) + " " + str(
@@ -88,7 +93,7 @@ def accept_incoming_connections():
 def handle_client(client):  # Takes client socket as argument.
     """Handles a single client connection."""
 
-    f = open("data/list.txt", encoding="utf8")  # файл со списком учеников и администраторов
+    f = open("server/data/list.txt", encoding="utf8")  # файл со списком учеников и администраторов
     students = []  # список студентов
     admins = []  # список админов
     text = f.read().splitlines()
@@ -114,7 +119,7 @@ def handle_client(client):  # Takes client socket as argument.
             students.append(stud)
     f.close()
 
-    g = open("data/disciplines.txt", encoding="utf8")  # файл со списком дисциплин
+    g = open("server/data/disciplines.txt", encoding="utf8")  # файл со списком дисциплин
     disciplines = []
     text = g.read().splitlines()
     for line in text:
@@ -129,7 +134,6 @@ def handle_client(client):  # Takes client socket as argument.
 
     flag = "0"
     while flag == "0":
-        print("Logging in")  # вход
         login = client.recv(1024).decode("utf8")
         password = client.recv(1024).decode("utf8")
         for stud in students + admins:
@@ -210,10 +214,8 @@ def handle_client(client):  # Takes client socket as argument.
 
             elif msg1 == "2":
                 stud = Student()
-                print("Signing in")  # регистрация
                 surname = client.recv(1024).decode("utf8")
                 stud.set_surname(surname)
-                print(surname)
                 name = client.recv(1024).decode("utf8")
                 stud.set_name(name)
                 patronym = client.recv(1024).decode("utf8")
@@ -233,10 +235,8 @@ def handle_client(client):  # Takes client socket as argument.
                 stud.set_group(group)
                 subgroup = client.recv(1024).decode("utf8")
                 stud.set_subgroup(int(subgroup))
-                print(1111111111111111111)
                 students.append(stud)
-                print(222222222222222222)
-                f = open("data/list.txt", "a", encoding="utf8")  # открытие файла на дозапись
+                f = open("server/data/list.txt", "a", encoding="utf8")  # открытие файла на дозапись
                 f.write(
                     surname + "*" + name + "*" + patronym + "*" + login + "*" + password + "*" + course + "*" + group + "*" + subgroup + "\n")
                 f.close()
@@ -265,7 +265,8 @@ def handle_client(client):  # Takes client socket as argument.
                               "\n" + "Студент бакалавриата " + str(
                             stud.get_course()) + " курс" + "\n" + "-------------------------------------------------"
                         for obj in disciplines:
-                            msg = msg + "\n" + str(obj.get_name()) + " " + str(obj.find_mark(str(stud.get_surname())))
+                            if int(obj.get_course()) <= int(stud.get_course()):
+                                msg = msg + "\n" + str(obj.get_name()) + " " + str(obj.find_mark(str(stud.get_surname())))
                         client.send(bytes(msg, "utf8"))
                         break
                 if flag == 0:
@@ -315,7 +316,7 @@ def handle_client(client):  # Takes client socket as argument.
 
 
 SERVER = socket(AF_INET, SOCK_STREAM)
-SERVER.bind(('127.0.0.1', 8081))
+SERVER.bind(('127.0.0.1', 8093))
 
 if __name__ == "__main__":
     SERVER.listen(5)

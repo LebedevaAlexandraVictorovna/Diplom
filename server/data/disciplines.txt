@@ -1,12 +1,12 @@
-Математический анализ*1*10*matan.txt
-Алгоритмизация вычислений*1*5*algo.txt
-Английский язык*1*4*англ.txt
-Дискретная математика*2*4*дискра.txt
-Электроника*2*8*элтех.txt
-Базы данных*2*6*бд.txt
-Схемотехника*3*5*схемотехника.txt
-Менеджмент*3*3*management.txt
-Операционные системы*3*4*osi.txt
-Philosophy*4*5*философия.txt
-Защита информации*4*4*зи.txt
-Защита ВКР*4*3*вкр.txt
+Математический анализ*1*10*server/data/subjects/matan.txt
+Алгоритмизация вычислений*1*5*server/data/subjects/algo.txt
+Английский язык*1*4*server/data/subjects/англ.txt
+Дискретная математика*2*4*server/data/subjects/дискра.txt
+Электроника*2*8*server/data/subjects/элтех.txt
+Базы данных*2*6*server/data/subjects/бд.txt
+Схемотехника*3*5*server/data/subjects/схемотехника.txt
+Менеджмент*3*3*server/data/subjects/management.txt
+Операционные системы*3*4*server/data/subjects/osi.txt
+Philosophy*4*5*server/data/subjects/философия.txt
+Защита информации*4*4*server/data/subjects/зи.txt
+Защита ВКР*4*3*server/data/subjects/вкр.txt

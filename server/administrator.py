@@ -1,4 +1,4 @@
-class Administrator():   # наследование с student?
+class Administrator:   # наследование с student?
     def __init__(self):
         self.surname = "Фамилия"
         self.name = "Имя"

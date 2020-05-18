@@ -1,33 +1,35 @@
 # -*- coding: utf-8 -*-
 
+from administrator import Administrator
 
-class Student:
+
+class Student(Administrator):
     def __init__(self):
-        self.surname = "Фамилия"
-        self.name = "Имя"
-        self.patronym = "Отчество"
-        self.login = "fio"
-        self.password = "0000"
+        #self.surname = "Фамилия"
+        #self.name = "Имя"
+        #self.patronym = "Отчество"
+        #self.login = "fio"
+        #self.__password = "0000"
         self.course = 1
         self.group = "БИВ000"
         self.subgroup = 1
 
     # setters
 
-    def set_surname(self, sur):
-        self.surname = sur
+    #def set_surname(self, sur):
+        #self.surname = sur
 
-    def set_name(self, name):
-        self.name = name
+    #def set_name(self, name):
+        #self.name = name
 
-    def set_patronym(self, pat):
-        self.patronym = pat
+    #def set_patronym(self, pat):
+        #self.patronym = pat
 
     def set_login(self, login):
         self.login = login
 
-    def set_password(self, password):
-        self.password = password
+    #def set_password(self, password):
+        #self.__password = password
 
     def set_course(self, course):
         self.course = course
@@ -40,20 +42,20 @@ class Student:
 
     # getters
 
-    def get_surname(self):
-        return self.surname
+    #def get_surname(self):
+        #return self.surname
 
-    def get_patronym(self):
-        return self.patronym
+    #def get_patronym(self):
+        #return self.patronym
 
-    def get_name(self):
-        return self.name
+    #def get_name(self):
+        #return self.name
 
-    def get_login(self):
-        return self.login
+    #def get_login(self):
+        #return self.login
 
-    def get_password(self):
-        return self.password
+    #def get_password(self):
+        #return self.__password
 
     def get_course(self):
         return self.course
