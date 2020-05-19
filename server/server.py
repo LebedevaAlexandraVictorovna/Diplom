@@ -316,7 +316,7 @@ def handle_client(client):  # Takes client socket as argument.
 
 
 SERVER = socket(AF_INET, SOCK_STREAM)
-SERVER.bind(('127.0.0.1', 8093))
+SERVER.bind(('127.0.0.1', 8094))
 
 if __name__ == "__main__":
     SERVER.listen(5)

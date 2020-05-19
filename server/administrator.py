@@ -4,7 +4,7 @@ class Administrator:   # наследование с student?
         self.name = "Имя"
         self.patronym = "Отчество"
         self.login = "admin"  # логин всегда admin, setter не нужен
-        self.__password = ""
+        self._password = ""
     
     # setters
     def set_surname(self, s):
@@ -17,7 +17,7 @@ class Administrator:   # наследование с student?
         self.patronym = p
     
     def set_password(self, password):
-        self.__password = password
+        self._password = password
     
     # getters
     def get_surname(self):
@@ -33,4 +33,4 @@ class Administrator:   # наследование с student?
         return self.login
     
     def get_password(self):
-        return self.__password
+        return self._password
