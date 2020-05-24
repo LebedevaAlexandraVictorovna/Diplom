@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from administrator import Administrator
+from server.administrator import Administrator
 
 
 class Student(Administrator):

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import boto3
 
 class Discipline:  # можно и препода добавить
     def __init__(self):
@@ -36,8 +37,9 @@ class Discipline:  # можно и препода добавить
 
     # нормальные методы
     def find_mark(self, student):
-        f = open(self.get_vedomost(), encoding="utf8")
-        text = f.read().splitlines()
+        s3 = boto3.resource('s3')
+        obj3 = s3.Object('liststudentsadmins', self.get_vedomost())
+        text = obj3.get()['Body'].read().decode('utf-8').splitlines()
         mark = "0"
         for line in text:
             if student in line:
@@ -45,5 +47,4 @@ class Discipline:  # можно и препода добавить
                 if mark != "10":
                     mark = mark[-1]
                 break
-        f.close()
         return mark
