@@ -101,10 +101,11 @@ def handle_client(client):  # Takes client socket as argument.
 
     s3 = boto3.resource('s3')
     obj1 = s3.Object('liststudentsadmins','list.txt')  # list.txt теперь находится на сетевом рес-се s3
-
+    text = obj1.get()['Body'].read().decode('utf-8').splitlines()
+    
     students = []  # список студентов
     admins = []  # список админов
-    text = obj1.get()['Body'].read().decode('utf-8').splitlines()
+    
     for line in text:
         spl = line.split("*")
         if spl[3] == "admin":
