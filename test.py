@@ -1,23 +1,30 @@
-class Component():
-    """
-    Базовый интерфейс Компонента определяет поведение, которое изменяется
-    декораторами.
-    """
-    def operation(self) -> str:
+# -*- coding: utf-8 -*-
+
+from socket import socket, AF_INET, SOCK_STREAM
+from threading import Thread
+import random
+import boto3
+
+class Okt():  # ocket interface
+    def read(self):
         pass
 
 
-class ConcreteComponent(Component):  # ocket с методом read, bucket, который может считать контент со своего файла какого-л
-    """
-    Конкретные Компоненты предоставляют реализации поведения по умолчанию. Может
-    быть несколько вариаций этих классов.
-    """
+class Ocket(Okt):
+    def __init__(self, resrc, bucket_name, file_name):
+        self.resrc = resrc
+        self.bucket_name = bucket_name
+        self.file_name = file_name
+        self.obj = self.resrc.Object(self.bucket_name, self.file_name)
+    
+    def read(self):
+        return self.obj.get()['Body'].read()  #.decode('utf-8').splitlines()   сделать декораторы
+    
+    def write(self, data):
+        self.obj.put(Body = data)
 
-    def operation(self) -> str:
-        return "ConcreteComponent"
 
-
-class Decorator(Component):  
+class Decorator(Okt):  
     """
     Базовый класс Декоратора следует тому же интерфейсу, что и другие
     компоненты. Основная цель этого класса - определить интерфейс обёртки для
@@ -26,9 +33,9 @@ class Decorator(Component):
     инициализации.
     """
 
-    _component: Component = None
+    _component: Okt = None
 
-    def __init__(self, component: Component) -> None:
+    def __init__(self, component: Okt) -> None:
         self._component = component
 
     @property
@@ -39,62 +46,62 @@ class Decorator(Component):
 
         return self._component
 
-    def operation(self) -> str:
-        return self._component.operation()
+    def read(self) -> str:
+        return self._component.read()
 
-
-class ConcreteDecoratorA(Decorator):  # read с декодом
+class DecodeDecorator(Decorator):  # read с декодом
     """
     Конкретные Декораторы вызывают обёрнутый объект и изменяют его результат
     некоторым образом.
     """
 
-    def operation(self) -> str:
-        """
-        Декораторы могут вызывать родительскую реализацию операции, вместо того,
-        чтобы вызвать обёрнутый объект напрямую. Такой подход упрощает
-        расширение классов декораторов.
-        """
-        return f"ConcreteDecoratorA({self.component.operation()})"
+    def read(self) -> str:
+        return (self.component.read()).decode('utf-8')
+
+class SplitlinesDecorator(Decorator):
+
+    def read(self) -> str:
+        return (self.component.read()).splitlines()
+
+class Bucket:
+    def __init__(self, resrc, bucket_name):
+        self.bucket_name = bucket_name
+        self.resrc = resrc
+    
+    def name(self):
+        return self.bucket_name
+
+    def ocket(self, file_name) -> Ocket:
+        ocket = Ocket(self.resrc, self.bucket_name, file_name)
+        return ocket
 
 
-class ConcreteDecoratorB(Decorator):  # read c splitlines
-    """
-    Декораторы могут выполнять своё поведение до или после вызова обёрнутого
-    объекта.
-    """
+def client_code(component: Okt) -> None:
 
-    def operation(self) -> str:
-        return f"ConcreteDecoratorB({self.component.operation()})"
+    return component.read()
 
 
-def client_code(component: Component) -> None:  
-    """
-    Клиентский код работает со всеми объектами, используя интерфейс Компонента.
-    Таким образом, он остаётся независимым от конкретных классов компонентов, с
-    которыми работает.
-    """
+class Resource:
 
-    # ...
+    def aws(self):
+        s3 = boto3.resource('s3')
+        return s3
+    
+    def bucket(self, bucket_name) -> Bucket:
+        bucket = Bucket(self.aws(), bucket_name)
+        return bucket
 
-    print(f"RESULT: {component.operation()}", end="")
+resource = Resource()
+bucket = resource.bucket('liststudentsadmins')
+ocket = bucket.ocket('list.txt')
+#content = ocket.read()
+#print(content)
 
-    # ...
-
-
-if __name__ == "__main__":
-    # Таким образом, клиентский код может поддерживать как простые компоненты...
-    simple = ConcreteComponent()
-    print("Client: I've got a simple component:")
-    client_code(simple)
-    print("\n")
-
-    # ...так и декорированные.
-    #
-    # Обратите внимание, что декораторы могут обёртывать не только простые
-    # компоненты, но и другие декораторы.
-    decorator1 = ConcreteDecoratorA(simple)
-    decorator2 = ConcreteDecoratorB(decorator1)
-    print("Client: Now I've got a decorated component:")
-    client_code(decorator2)
-    print("\n")
+print("Client: I've got a simple component:")
+client_code(ocket)
+print("\n")
+decorator1 = DecodeDecorator(ocket)
+decorator2 = SplitlinesDecorator(decorator1)
+print("Client: Now I've got a decorated component:")
+text = client_code(decorator2)
+print(text)
